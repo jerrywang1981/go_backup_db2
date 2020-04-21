@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"flag"
+	"fmt"
 	"log"
 	"os"
 
@@ -10,6 +11,16 @@ import (
 )
 
 func main() {
+
+	if len(os.Args) < 2 {
+		fmt.Println(`
+
+    the format would be : 
+    ./db2_backup -host=127.0.0.1 -port=50000 -db=DB_NAME -user=db2inst1 -password=passw0rd -json=./test/schema.json -output=. -generate=export
+    `)
+		os.Exit(0)
+	}
+
 	host := flag.String("host", "127.0.0.1", "db2 server ip address")
 	port := flag.String("port", "50000", "db2 server port")
 	db := flag.String("db", "", "database name")

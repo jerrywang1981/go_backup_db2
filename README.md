@@ -22,7 +22,15 @@ CGO_ENABLED=0 GOOS=windows  GOARCH=amd64  go build -o db2_backup.exe main.go
 
 Example
 ```
-./go_backup_db2 -host=127.0.0.1 -port=50000 -db=DB_NAME -user=db2inst1 -password=passw0rd -json=./test/schema.json -output=. -generate=export
+./db2_backup -host=127.0.0.1 -port=50000 -db=DB_NAME -user=db2inst1 -password=passw0rd -json=./test/schema.json -output=. -generate=export
+```
+You get files in current directory `export.sql`, `import.sql`, You still need to double check the file to update if necessary
+
+to run it, you need to 
+```
+db2 connect to $DB user $DB_USERNAME using $DB_PASSWD
+db2 -xtvf export.sql
+--- db2 -xtvf import.sql
 ```
 
 ### Params
