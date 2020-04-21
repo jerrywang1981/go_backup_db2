@@ -1,3 +1,4 @@
 {
-  "ct_match": ["hotel_pair"]
+  "ct_test": ["table1", "table2"],
+  "ct_data": ["table3", "table4"]
 }
