@@ -22,9 +22,10 @@ CGO_ENABLED=0 GOOS=windows  GOARCH=amd64  go build -o db2_backup.exe db2_backup.
 
 Example
 ```
-./db2_backup -host=127.0.0.1 -port=50000 -db=DB_NAME -user=db2inst1 -password=passw0rd -json=./test/schema.json -output=. -generate=export
+./db2_backup -host=127.0.0.1 -port=50000 -db=DB_NAME -user=db2inst1 -password=passw0rd -json=./test/schema.json -output=. -cert=xxx.arm -generate=export
 ```
 You get files in current directory `export.sql`, `import.sql`, You still need to double check the file to update if necessary
+if ssl, please make sure `-cert` file is arm file
 
 to run it, you need to 
 ```
