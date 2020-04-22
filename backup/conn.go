@@ -12,8 +12,13 @@ import (
 var db *sqlx.DB
 var dbSchema map[string]map[string]tableSchema = make(map[string]map[string]tableSchema, 1)
 
-func Connect(hostname, port, database, user, password string) {
-	var connParam = fmt.Sprintf("HOSTNAME=%s;DATABASE=%s;PORT=%s;UID=%s;PWD=%s", hostname, database, port, user, password)
+func Connect(hostname, port, database, user, password, cert string) {
+	var connParam string
+	if cert != "" {
+		connParam = fmt.Sprintf("HOSTNAME=%s;DATABASE=%s;PORT=%s;UID=%s;PWD=%s;SECURITY=SSL;SSLSERVERCERTIFICATE=%s", hostname, database, port, user, password, cert)
+	} else {
+		connParam = fmt.Sprintf("HOSTNAME=%s;DATABASE=%s;PORT=%s;UID=%s;PWD=%s", hostname, database, port, user, password)
+	}
 	connStr := flag.String("conn", connParam, "connection string")
 	db1, err := sqlx.Connect("go_ibm_db", *connStr)
 	db = db1
