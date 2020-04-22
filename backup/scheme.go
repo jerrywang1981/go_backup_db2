@@ -94,6 +94,7 @@ func GenerateSql(folder string, config map[string][]string) ([]string, []string)
 	expSql = append(expSql, "")
 
 	impSql = append(impSql, sqlFileHeader...)
+	impSql = append(impSql, "update command options using c off;", "")
 	impSql = append(impSql, "select current timestamp from sysibm.sysdummy1;")
 	expSql = append(expSql, "")
 	expSql = append(expSql, "")
@@ -120,6 +121,7 @@ func GenerateSql(folder string, config map[string][]string) ([]string, []string)
 
 	expSql = append(expSql, "select current timestamp from sysibm.sysdummy1;")
 
+	impSql = append(impSql, "update command options using c on;", "")
 	impSql = append(impSql, "select current timestamp from sysibm.sysdummy1;")
 	return expSql, impSql
 }
