@@ -16,7 +16,7 @@ func main() {
 		fmt.Println(`
 
     the format would be : 
-    ./db2_backup -host=127.0.0.1 -port=50000 -db=DB_NAME -user=db2inst1 -password=passw0rd -json=./test/schema.json -output=. -generate=export
+    ./db2_backup -host=127.0.0.1 -port=50000 -db=DB_NAME -user=db2inst1 -password=passw0rd -json=./test/schema.json -output=. -cert=xxx.arm -generate=export
     `)
 		os.Exit(0)
 	}
