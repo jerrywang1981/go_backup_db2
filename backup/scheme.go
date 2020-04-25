@@ -68,7 +68,7 @@ func (ts *tableSchema) createTableSql(folder string) (string, string) {
 	}
 	strCol := getColumnStrings(ts.Columns)
 	expSql := fmt.Sprintf("export to %s/%s.%s.del of del select %s from %s.%s;", absName, ts.Schema, ts.Table, strCol, ts.Schema, ts.Table)
-	impSql := fmt.Sprintf("load client from %s/%s.%s.del of del insert into %s.%s(%s) nonrecoverable", absName, ts.Schema, ts.Table, ts.Schema, ts.Table, strCol)
+	impSql := fmt.Sprintf("load client from %s/%s.%s.del of del insert into %s.%s(%s) nonrecoverable;", absName, ts.Schema, ts.Table, ts.Schema, ts.Table, strCol)
 	return expSql, impSql
 }
 
