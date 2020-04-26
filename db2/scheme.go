@@ -1,4 +1,4 @@
-package backup
+package db2
 
 import (
 	"database/sql"
@@ -23,7 +23,7 @@ type tableSchemaRow struct {
 	ComputedFormula sql.NullString `db:"COMPUTED_FORMULA"`
 }
 
-type tableSchema struct {
+type TableSchema struct {
 	Schema  string
 	Table   string
 	Columns []tableSchemaRow
@@ -44,14 +44,14 @@ var sqlFileHeader []string = []string{
 	"",
 }
 
-func CreateTableSql(folder, schemaName, tableName string) (string, string) {
+func (db *DB2) CreateTableSql(folder, schemaName, tableName string) (string, string) {
 	absName, err := filepath.Abs(folder)
 	if err != nil {
 		fmt.Println("Invalid folder: ", err)
 		return "", ""
 	}
 	schemaName, tableName = strings.ToUpper(schemaName), strings.ToUpper(tableName)
-	if schema, ok := dbSchema[schemaName]; ok {
+	if schema, ok := db.Schema[schemaName]; ok {
 		if table, ok := schema[tableName]; ok {
 			return table.createTableSql(absName)
 		}
@@ -60,7 +60,7 @@ func CreateTableSql(folder, schemaName, tableName string) (string, string) {
 	return "", ""
 }
 
-func (ts *tableSchema) createTableSql(folder string) (string, string) {
+func (ts *TableSchema) createTableSql(folder string) (string, string) {
 	absName, err := filepath.Abs(folder)
 	if err != nil {
 		fmt.Println("Invalid folder: ", err)
@@ -81,7 +81,7 @@ func getColumnStrings(colRows []tableSchemaRow) string {
 	return strCol
 }
 
-func GenerateSql(folder string, config map[string][]string) ([]string, []string) {
+func (db *DB2) GenerateSql(folder string, config map[string][]string) ([]string, []string) {
 	absName, err := filepath.Abs(folder)
 	if err != nil {
 		fmt.Println("Invalid folder: ", err)
@@ -100,7 +100,7 @@ func GenerateSql(folder string, config map[string][]string) ([]string, []string)
 	expSql = append(expSql, "")
 	for schemaName, data := range config {
 		for _, tableName := range data {
-			eSql, iSql := CreateTableSql(absName, schemaName, tableName)
+			eSql, iSql := db.CreateTableSql(absName, schemaName, tableName)
 			expSql = append(expSql,
 				fmt.Sprintf("----start-- export %s.%s to local", schemaName, tableName),
 				eSql,

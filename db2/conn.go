@@ -1,4 +1,4 @@
-package backup
+package db2
 
 import (
 	"flag"
@@ -8,11 +8,12 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-//global db connection
-var db *sqlx.DB
-var dbSchema map[string]map[string]tableSchema = make(map[string]map[string]tableSchema, 1)
+type DB2 struct {
+	DB     *sqlx.DB
+	Schema map[string]map[string]TableSchema
+}
 
-func Connect(hostname, port, database, user, password, cert string) {
+func Connect(hostname, port, database, user, password, cert string) (DB2, error) {
 	var connParam string
 	if cert != "" {
 		connParam = fmt.Sprintf("HOSTNAME=%s;DATABASE=%s;PORT=%s;UID=%s;PWD=%s;SECURITY=SSL;SSLSERVERCERTIFICATE=%s", hostname, database, port, user, password, cert)
@@ -20,8 +21,7 @@ func Connect(hostname, port, database, user, password, cert string) {
 		connParam = fmt.Sprintf("HOSTNAME=%s;DATABASE=%s;PORT=%s;UID=%s;PWD=%s", hostname, database, port, user, password)
 	}
 	connStr := flag.String("conn", connParam, "connection string")
-	db1, err := sqlx.Connect("go_ibm_db", *connStr)
-	db = db1
+	db, err := sqlx.Connect("go_ibm_db", *connStr)
 	if err != nil {
 		fmt.Println(err)
 		panic(err)
@@ -31,15 +31,21 @@ func Connect(hostname, port, database, user, password, cert string) {
 		fmt.Println(err)
 		panic(err)
 	}
+	return DB2{DB: db, Schema: nil}, err
 }
 
-func Disconnect() {
-	defer db.Close()
+func (db *DB2) Disconnect() {
+	if db.DB != nil {
+		db.DB.Close()
+	}
 }
 
-func ReadAllTableSchema() {
+func (db *DB2) ReadAllTableSchema() map[string]map[string]TableSchema {
+	if db.Schema != nil {
+		return db.Schema
+	}
 	schemaData := []tableSchemaRow{}
-	err := db.Select(&schemaData, `
+	err := db.DB.Select(&schemaData, `
         Select c.tabschema as schema_name,
              c.tabname as table_name, 
              c.colname as column_name,
@@ -64,29 +70,28 @@ func ReadAllTableSchema() {
 		fmt.Println(err)
 		panic(err)
 	}
-	// for _, r := range schemaData {
-	// fmt.Printf("%+v\n", r)
-	// }
+	dbSchema := make(map[string]map[string]TableSchema, 1)
 	for _, row := range schemaData {
 		schemaName, tableName := row.Schema, row.Table
-		// fmt.Printf("schema: %s, table:%s, row:%+v \n", schemaName, tableName, row)
 		schema, ok := dbSchema[schemaName]
 		if !ok {
-			dbSchema[schemaName] = make(map[string]tableSchema, 1)
+			dbSchema[schemaName] = make(map[string]TableSchema, 1)
 		}
 		schema = dbSchema[schemaName]
 		table, ok := schema[tableName]
 		if !ok {
-			schema[tableName] = tableSchema{Schema: schemaName, Table: tableName, Columns: []tableSchemaRow{}}
+			schema[tableName] = TableSchema{Schema: schemaName, Table: tableName, Columns: []tableSchemaRow{}}
 		}
 		table = schema[tableName]
 		table.Columns = append(table.Columns, row)
 		dbSchema[schemaName][tableName] = table
 	}
+	db.Schema = dbSchema
+	return db.Schema
 }
 
-func PrintTableSchema() {
-	for s, schema := range dbSchema {
+func (db *DB2) PrintTableSchema() {
+	for s, schema := range db.Schema {
 		fmt.Println("Schema: \v\n", s)
 		for t, tbl := range schema {
 			fmt.Println("Table: \v\n", t)
@@ -97,8 +102,8 @@ func PrintTableSchema() {
 	}
 }
 
-func PrintOneTableSchema(schema, table string) {
-	if s, ok := dbSchema[schema]; ok {
+func (db *DB2) PrintOneTableSchema(schema, table string) {
+	if s, ok := db.Schema[schema]; ok {
 		if t, ok := s[table]; ok {
 			for _, r := range t.Columns {
 				fmt.Printf("%+v\n", r)

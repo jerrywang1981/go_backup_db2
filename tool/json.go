@@ -1,4 +1,4 @@
-package backup
+package tool
 
 import (
 	"encoding/json"
