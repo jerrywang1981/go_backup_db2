@@ -26,7 +26,7 @@ type tableSchemaRow struct {
 type TableSchema struct {
 	Schema  string
 	Table   string
-	Columns []tableSchemaRow
+	Columns []*tableSchemaRow
 }
 
 var sqlFileHeader []string = []string{
@@ -72,7 +72,7 @@ func (ts *TableSchema) createTableSql(folder string) (string, string) {
 	return expSql, impSql
 }
 
-func getColumnStrings(colRows []tableSchemaRow) string {
+func getColumnStrings(colRows []*tableSchemaRow) string {
 	cols := []string{}
 	for _, col := range colRows {
 		cols = append(cols, col.Column)

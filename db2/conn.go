@@ -44,7 +44,7 @@ func (db *DB2) ReadAllTableSchema() map[string]map[string]TableSchema {
 	if db.Schema != nil {
 		return db.Schema
 	}
-	schemaData := []tableSchemaRow{}
+	schemaData := []*tableSchemaRow{}
 	err := db.DB.Select(&schemaData, `
         Select c.tabschema as schema_name,
              c.tabname as table_name, 
@@ -80,7 +80,7 @@ func (db *DB2) ReadAllTableSchema() map[string]map[string]TableSchema {
 		schema = dbSchema[schemaName]
 		table, ok := schema[tableName]
 		if !ok {
-			schema[tableName] = TableSchema{Schema: schemaName, Table: tableName, Columns: []tableSchemaRow{}}
+			schema[tableName] = TableSchema{Schema: schemaName, Table: tableName, Columns: []*tableSchemaRow{}}
 		}
 		table = schema[tableName]
 		table.Columns = append(table.Columns, row)
